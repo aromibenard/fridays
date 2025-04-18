@@ -2,6 +2,7 @@
 
 import { analyzeLifeRange, DayOfWeek } from "@/analyzeLifeRange";
 import Greeting from "@/components/greeting";
+import Link from "next/link";
 import { useState } from "react";
 
 const ageOptions = Array.from({ length: 45 - 18 + 1 }, (_, i) => {
@@ -120,6 +121,7 @@ export default function Home() {
           <h1 className="-mt-10 text-lg font-semibold">Total Days: {result.totalDays}</h1>
         </>
       )}
+      <p>developed by <Link href={'https://github.com/aromibenard'} className="underline text-violet-500" >aromi</Link></p>
     </div>
   )
 }
