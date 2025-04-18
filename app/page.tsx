@@ -1,103 +1,125 @@
-import Image from "next/image";
+'use client'
+
+import { analyzeLifeRange, DayOfWeek } from "@/analyzeLifeRange";
+import Greeting from "@/components/greeting";
+import { useState } from "react";
+
+const ageOptions = Array.from({ length: 45 - 18 + 1 }, (_, i) => {
+  const age = i + 18;
+  return {
+    value: age,
+    label: age.toString(),
+  }
+})
+
+const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+type Result = {
+  totalDays: number;
+  from: string;
+  to: string;
+  dayCounts: Partial<Record<DayOfWeek, number>>;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [currentAge, setCurrentAge] = useState<number>(23)
+  const [targetAge, setTargetAge] = useState<number>(30)
+  const [selectedDay, setSelectedDay] = useState<DayOfWeek>('Friday')
+  const [result, setResult] = useState<Result | null>(null)
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  return (
+    <div className="grid items-center justify-items-center p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <Greeting />
+      <div className="flex border p-6 rounded border-purple-400">
+        <span className="text-xl font-bold text-center flex flex-col space-y-4">
+          <div className="flex items-center space-x-2"> 
+            <h1 className="text-xl">I'm currently</h1>
+            <label htmlFor="age-select" className="sr-only">Select your role:</label>
+            <select 
+              id="age-select" 
+              className="text-xl font-bold text-center flex  rounded shadow-xs dark:shadow-white scrollbar-hidden" 
+              name="Age" 
+              value={currentAge}
+              onChange={(e) => setCurrentAge(parseInt(e.target.value))}
+              required
+            >
+              {ageOptions.map((option) => (
+                <option key={option.value} value={option.value} className="dark:bg-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 hover:cursor-pointer">
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-x-2">
+            <div className="flex items-center space-x-2">
+              <h1 className="text-xl">How many</h1>
+              <label htmlFor="age-select" className="sr-only">Select your role:</label>
+              <select 
+                id="age-select"
+                className="text-xl font-bold text-center flex  rounded shadow-xs dark:shadow-white scrollbar-hidden" 
+                name="Age" 
+                required
+                value={selectedDay}
+                onChange={(e) => setSelectedDay(e.target.value as DayOfWeek )}
+              >
+                {daysOfWeek.map((day) => (
+                  <option key={day} value={day} className="dark:bg-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 hover:cursor-pointer">
+                    {day}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center space-x-2">
+              <h1 className="text-xl ">do I have till I hit</h1>
+              <label htmlFor="age-select" className="sr-only">Select your role:</label>
+              <select 
+                id="age-select" 
+                className="text-xl font-bold text-center flex  rounded shadow-xs dark:shadow-white scrollbar-hidden" 
+                name="Age" 
+                value={targetAge}
+                onChange={(e) => setTargetAge(parseInt(e.target.value))}
+                required
+              >
+                {ageOptions.map((option) => (
+                  <option key={option.value} value={option.value} className="dark:bg-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 hover:cursor-pointer">
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </span>
+      </div>
+      <button 
+        className="shadow shadow-white p-2 px-3 rounded hover:shadow-lg transition"
+        onClick={() => {
+          const result = analyzeLifeRange(currentAge, targetAge, [selectedDay])
+          setResult(result)
+        }}
+      >
+        Calculate
+      </button>
+      {result && (
+        <>
+          <div className="border rounded w-full md:w-2/3">
+            <div className="bg-violet-100/50 p-2 border-b flex justify-between">
+              <p>From</p>
+              <p>To</p>
+              <p>Details</p>
+            </div>
+            <div className="p-2 flex justify-between">
+              <p>{result.from}</p>
+              <p>{result.to}</p>
+              <div>
+                {Object.entries(result.dayCounts).map(([day, count]) => (
+                  <p key={day}>{day}s: {count}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+          <h1 className="-mt-10 text-lg font-semibold">Total Days: {result.totalDays}</h1>
+        </>
+      )}
     </div>
-  );
+  )
 }
