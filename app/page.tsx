@@ -101,6 +101,7 @@ export default function Home() {
         Calculate
       </button>
       {result && (
+        console.log(result),
         <>
           <div className="border rounded w-full md:w-2/3">
             <div className="bg-violet-100/50 p-2 border-b flex justify-between">
